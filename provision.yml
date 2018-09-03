@@ -1,0 +1,35 @@
+
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Install unzip
+      package:
+        name:
+      loop:
+        - unzip
+        - htop
+        - tcpdump
+        - dstat
+    - name: Create tmp dir
+      file:
+        path: /tmp/kataribe
+        state: directory
+    - name: Download kataribe
+      unarchive:
+        src: https://github.com/matsuu/kataribe/releases/download/v0.3.0/linux_amd64.zip
+        dest: /tmp/kataribe
+        remote_src: yes
+    - name: Copy kataribe bin and setting file
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode | default(omit) }}"
+        remote_src: yes
+      loop:
+        - src: /tmp/kataribe/kataribe
+          dest: /usr/local/bin/kataribe
+          mode: "u=rwx,g=rx,o=rx"
+        - src: /tmp/kataribe/kataribe.toml
+          dest: /etc/kataribe.toml
