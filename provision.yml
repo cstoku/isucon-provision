@@ -4,9 +4,10 @@
   gather_facts: yes
 
   tasks:
-    - name: Install unzip
-      package:
-        name:
+    - name: Install packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
       loop:
         - unzip
         - htop
@@ -33,3 +34,30 @@
           mode: "u=rwx,g=rx,o=rx"
         - src: /tmp/kataribe/kataribe.toml
           dest: /etc/kataribe.toml
+
+    - name: Create isucon user
+      user:
+        name: isucon
+    - name: Set ssh public key
+      authorized_key:
+        user: isucon
+        key: "{{ lookup('file', 'id_rsa.pub') }}"
+    - name: Copy ssh private key
+      copy:
+        src: id_rsa
+        dest: "{{ item.dest }}"
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+        mode: 0400
+        backup: yes
+      loop:
+        - owner: isucon
+          dest: /home/isucon/.ssh/id_rsa
+        - owner: root
+          dest: /root/.ssh/id_rsa
+
+    - name: Copy logrotate script
+      copy:
+        src: lotatelog
+        dest: /usr/local/bin/lotatelog
+        mode: 0755

@@ -1,0 +1,87 @@
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - ini_file:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        section: mysqld
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: bind-address
+          value: 0.0.0.0
+        - option: long_query_time
+          value: 0
+        - option: slow_query_log_file
+          value: /var/log/mysql/mysql-slow.log
+        - option: thread_cache_size
+          value: 512
+        - option: query_cache_type
+          value: 2
+        - option: query_cache_limit
+          value: 16M
+        - option: query_cache_size
+          value: 512M
+        - option: innodb_file_per_table
+          value: ON
+        - option: innodb_buffer_pool_size
+          value: "{{ (ansible_memtotal_mb * 0.8 ) | round | int }}M"
+        - option: innodb_log_file_size
+          value: "{{ (ansible_memtotal_mb * 0.8 * 0.25 ) | round | int }}M"
+        - option: innodb_log_buffer_size
+          value: 64M
+        - option: innodb_open_files
+          value: 2048
+        - option: innodb_max_dirty_pages_pct
+          value: 95
+        - option: innodb_flush_log_at_trx_commit
+          value: 0
+        - option: innodb_flush_method
+          value: O_DIRECT
+        - option: innodb_doublewrite
+          value: OFF
+        - option: innodb_flush_log_at_timeout
+          value: 5
+        - option: innodb_open_files
+          value: 2048
+        - option: innodb_autoinc_lock_mode
+          value: 2
+        - option: innodb_checksum_algorithm
+          value: none
+        - option: skip_name_resolve
+          value: ON
+        - option: max_connections
+          value: 65535
+        - option: key_buffer_size
+          value: 64M
+        - option: table_open_cache
+          value: 65535
+        - option: sort_buffer_size
+          value: 2M
+        - option: join_buffer_size
+          value: 1M
+        - option: read_buffer_size
+          value: 512K
+        - option: read_rnd_buffer_size
+          value: 1M
+        - option: max_allowed_packet
+          value: 256M
+        - option: autocommit
+          value: OFF
+        - option: transaction-isolation
+          value: REPEATABLE-READ
+        #- option: innodb_read_io_threads
+        #  value: 8
+        #- option: innodb_write_io_threads
+        #  value: 16
+        #- option: innodb_io_capacity
+        #  value: 20000
+        #- option: innodb_io_capacity_max
+        #  value: 40000
+      register: db_settings
+    - systemd:
+        name: mysql
+        state: restarted
+      when: db_settings is changed
+

@@ -1,0 +1,107 @@
+
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+      loop:
+        - name: fs.file-max
+          value: 5242880
+        - name: kernel.threads-max
+          value: 1060863
+        - name: kernel.shmall
+          value: 2097152
+        - name: kernel.shmmax
+          value: 33554432
+        - name: kernel.shmmni
+          value: 4096
+        - name: kernel.sem
+          value: 250 32000 32 128
+        - name: kernel.msgmni
+          value: 16
+        - name: kernel.msgmnb
+          value: 16384
+        - name: kernel.msgmax
+          value: 8192
+        - name: vm.swappiness
+          value: 5
+        - name: vm.dirty_ratio
+          value: 80
+        - name: vm.dirty_background_ratio
+          value: 50
+        - name: vm.dirty_writeback_centisecs
+          value: 1000
+        - name: vm.dirty_expire_centisecs
+          value: 3000
+        - name: net.core.rmem_default
+          value: 873800
+        - name: net.core.rmem_max
+          value: 873800
+        - name: net.core.wmem_default
+          value: 1747600
+        - name: net.core.wmem_max
+          value: 1747600
+        - name: net.ipv4.tcp_no_metrics_save
+          value: 1
+        - name: net.ipv4.tcp_mem
+          value: 2048000 2048000 2048000
+        - name: net.ipv4.tcp_rmem
+          value: 4096 873800 1747600
+        - name: net.ipv4.tcp_wmem
+          value: 4096 873800 1747600
+        - name: net.ipv4.tcp_window_scaling
+          value: 1
+        - name: net.core.optmem_max
+          value: 20480
+        - name: net.ipv4.tcp_moderate_rcvbuf
+          value: 1
+        - name: net.core.somaxconn
+          value: 10000
+        - name: net.ipv4.tcp_max_syn_backlog
+          value: 10000
+        - name: net.ipv4.tcp_tw_reuse
+          value: 1
+        - name: net.ipv4.conf.default.rp_filter
+          value: 0
+        - name: net.ipv4.tcp_syncookies
+          value: 0
+        - name: net.ipv4.ip_local_port_range
+          value: 10000 65535
+        - name: net.ipv4.tcp_fin_timeout
+          value: 3
+        - name: net.ipv4.conf.default.log_martians
+          value: 0
+        - name: net.ipv4.tcp_syn_retries
+          value: 2
+        - name: net.ipv4.tcp_synack_retries
+          value: 2
+        - name: net.ipv4.tcp_orphan_retries
+          value: 0
+        - name: net.ipv4.tcp_keepalive_time
+          value: 10
+        - name: net.ipv4.tcp_keepalive_probes
+          value: 2
+        - name: net.ipv4.tcp_keepalive_intvl
+          value: 3
+        - name: net.core.netdev_max_backlog
+          value: 65536
+        - name: vm.overcommit_memory
+          value: 1
+        - name: vm.overcommit_ratio
+          value: 99
+        - name: net.ipv4.tcp_timestamps
+          value: 0
+        - name: kernel.sched_min_granularity_ns
+          value: 10000000
+        - name: kernel.sched_migration_cost_ns
+          value: 5000000
+        - name: kernel.sched_wakeup_granularity_ns
+          value: 15000000
+        # CPU -> up, netthrouput -> up
+        #- name: net.ipv4.tcp_fack
+        #  value: 1
+        #- name: net.ipv4.tcp_sack
+        #  value: 1

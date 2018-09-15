@@ -1,0 +1,38 @@
+# https://qiita.com/fallout/items/92b2099ab5e16cfeb1f9
+# かけるまえに `net.ipv4.tcp_congestion_control` のデフォをとっとけ
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - get_url:
+        url: https://github.com/teddysun/across/raw/master/bbr.sh
+        dest: /tmp/bbr.sh
+        mode: 0755
+    - lineinfile:
+        path: /tmp/bbr.sh
+        regexp: '^#?(char=.*)$'
+        line: '#\1'
+        backrefs: yes
+    - lineinfile:
+        path: /tmp/bbr.sh
+        regexp: '^#?(\s*reboot_os)$'
+        line: '#\1'
+        backrefs: yes
+    - command: /tmp/bbr.sh
+    - name: Reboot
+      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+      async: 1
+      poll: 0
+      changed_when: yes
+      ignore_errors: yes
+
+    - name: Wait for SSH port up
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        state: started
+        delay: 10
+      delegate_to: localhost
+      become: no
+

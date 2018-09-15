@@ -1,0 +1,32 @@
+
+- hosts: all
+  become: yes
+  become_user: isucon
+  gather_facts: yes
+  vars:
+    go_version: 1.9.2
+
+  tasks:
+    - git:
+        repo: https://github.com/tagomoris/xbuild.git
+        dest: /home/isucon/.xbuild
+    - file:
+        path: /home/isucon/.local
+        state: directory
+    - command:
+        cmd: /home/isucon/.xbuild/install go {{ go_version }} /home/isucon/.local/go
+        creates: /home/isucon/.local/go
+    - lineinfile:
+        path: /home/isucon/.profile
+        regexp: "{{ item.regexp | default(omit) }}"
+        line: "{{ item.line }}"
+      loop:
+        - line: export PATH=/home/isucon/.local/go/bin:$PATH
+        - regexp: 'GOROOT=.*'
+          line: export GOROOT=/home/isucon/.local/go
+        - regexp: 'GOPATH=.*'
+          line: export GOPATH=/home/isucon/go
+        - line: export PATH=$GOPATH/bin:$PATH
+    - command:
+        cmd: bash -lc 'go get -u github.com/golang/dep/cmd/dep'
+        creates: /home/isucon/go/bin/dep

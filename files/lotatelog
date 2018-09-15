@@ -1,0 +1,12 @@
+#!/bin/sh
+
+TIME=`date +%Y%m%d%H%M%S`
+WEBLOG=/var/log/nginx/access.log
+DBLOG=/var/log/mysql/mysql-slow.log
+
+[ ! -f $WEBLOG ] || cp $WEBLOG $WEBLOG-$TIME
+[ ! -f $DBLOG ] || cp $DBLOG $DBLOG-$TIME
+
+[ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+/usr/bin/mysqladmin flush-logs
+
